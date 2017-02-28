@@ -3,13 +3,14 @@
 #include <errno.h>
 #include "AkAlsaHardware.h"
 #include "log.h"
+#include "samplerate.h"
 #include <sdfilter.h>
 
 #define DEFAULT_ALSA_HARDWARE	"default"
 #define CAPTURE_ROUTE_NAME				"ADC Capture Route"
 #define CAPTURE_LINE_ROUTE_NAME		"LineIn Capture Route"
 #define DEFAULT_SAMPLE_RATE_DA	44100
-#define DEFAULT_SAMPLE_RATE_AD	8000
+#define DEFAULT_SAMPLE_RATE_AD	SAMPLERATE
 #define DEFAULT_RESAMPLE_UNIT	8	//can use 2,4,8
 
 #define SOURCE_DAC 			(0b001)

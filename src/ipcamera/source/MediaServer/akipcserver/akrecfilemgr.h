@@ -9,7 +9,7 @@ extern "C" {
 
 #define SIGN_FILE_NAME							".LMR_RecordManger_Sign"
 #define FILE_SUFFIX								".avi"
-#define FILE_NAME_DIF							"(New)"
+#define FILE_NAME_DIF							".rec"
 #define DIR_SEPARATOR							'/'
 #define CYC_FILE_PREFIX							"CYC_DV_"
 #define REC_FILE_PREFIX							"DV_"

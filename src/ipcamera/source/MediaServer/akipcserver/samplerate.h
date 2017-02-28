@@ -1,0 +1,1 @@
+#define SAMPLERATE 22050

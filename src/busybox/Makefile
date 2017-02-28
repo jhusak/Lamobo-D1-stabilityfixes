@@ -721,6 +721,7 @@ ifeq ($(SKIP_STRIP),y)
 else
 	$(Q)$(STRIP) -s --remove-section=.note --remove-section=.comment \
 		busybox_unstripped -o $@
+#$(Q)upx $@
 # strip is confused by PIE executable and does not set exec bits
 	$(Q)chmod a+x $@
 endif

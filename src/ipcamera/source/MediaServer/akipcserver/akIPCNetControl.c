@@ -89,7 +89,6 @@ static int conn_amount;    // current connection amount
 static int startflag = 0;
 
 void auto_record_file(){
-    printf("[###]aaaaauto reeeeeeeeeeecord....\n");
     handleOpenRecord();
 }
 

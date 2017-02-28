@@ -8,6 +8,7 @@
 #include "log.h"
 #include "Thread.h"
 #include "audio.h"
+#include "samplerate.h"
 
 
 #define PER_AUDIO_DURATION		32		// 30ms
@@ -16,7 +17,7 @@
 #define CAPTURE_ROUTE_NAME				"ADC Capture Route"
 #define CAPTURE_LINE_ROUTE_NAME		"LineIn Capture Route"
 #define DEFAULT_SAMPLE_RATE_DA	ALSA_DEFAULT_SAMPLE_RATE
-#define DEFAULT_SAMPLE_RATE_AD	8000
+#define DEFAULT_SAMPLE_RATE_AD	SAMPLERATE	
 #define DEFAULT_RESAMPLE_UNIT	8	//can use 2,4,8
 #define DECLARE_SAFE_SIZE	20
 

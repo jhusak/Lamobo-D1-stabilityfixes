@@ -24,6 +24,7 @@
 #include "DemuxForLive555.h"
 #include "PTZControl.h"
 #include "photograph.h"
+#include "samplerate.h"
 
 #include <execinfo.h>
 #include <AKRTSPServer.hh>
@@ -66,12 +67,19 @@ static void appExit()
 	printf("##appExit\n");
 	//if (bHasAudio)
 	{
+
+		printf("audio_stopping\n");
 		audio_stop();
+		printf("audio_stoped\n");
+		printf("audio_closing\n");
 		audio_close();
 		printf("audio_close\n");
 	}
+	printf("encode_closing\n");
 	close_encode();
+	printf("audio_dec_exit\n");
 	audio_dec_exit();
+	printf("video_stopping\n");
 	video_process_stop();
 	usleep(200 * 1000);
 	camera_close();
@@ -220,7 +228,7 @@ int main( int argc, char **argv )
 	
 	//mux audio
 	mux_input.m_eAudioType = MEDIALIB_AUDIO_AAC;
-	mux_input.m_nSampleRate = 8000;
+	mux_input.m_nSampleRate = SAMPLERATE;
 	//mux_input.abitsrate = ext_gSettings->abitsrate;
 
 	printf("mux_open ok\n");
@@ -479,7 +487,7 @@ static void Settings_Initialize( demo_setting *main )
 	main->bitPerSecond	= 1000* 400;		//目标bps
 	main->enc_time		= 10;
 	main->audioType		= ENC_TYPE_AAC;
-	main->aSamplerate	= 8000;
+	main->aSamplerate	= SAMPLERATE;
 	main->video_types   	= 0;
 	main->bhasAudio = 1;
 }

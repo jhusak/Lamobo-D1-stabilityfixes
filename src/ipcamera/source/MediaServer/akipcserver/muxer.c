@@ -17,6 +17,7 @@
 #include "AkRecordManager.h"
 #include "led.h"
 #include "SDcard.h"
+#include "samplerate.h"
 
 
 
@@ -294,11 +295,13 @@ int mux_addAudio(void *pbuf, unsigned long size, unsigned long timestamp)
 	{
 		if(!MediaLib_Mux_AddAudioData(hMedia, &mux_param))
 		{
-            video_ffff++;
-            if(video_ffff > 765){
-                printf("you should restart akiserver\n");
-                exit(1);
-            }
+			video_ffff++;
+			printf("bad video counter: %d\n",video_ffff);
+			if(video_ffff > 100){
+				printf("you should restart akiserver\n");
+					Mutex_Unlock(&muxMutex);
+					exit(1);
+			}
 			printf("WARNING! Add Audio Failure\r\n");
 			//Mutex_Unlock(&muxMutex);
 			//return -1;
@@ -345,11 +348,14 @@ int mux_addVideo(void *pbuf, unsigned long size, unsigned long timestamp, int nI
 
 	if (!MediaLib_Mux_AddVideoData(hMedia, &mux_param))
 	{
-        video_ffff++;
-        if(video_ffff>765){
-            printf("you should restart akipcserver\n");
-            exit(1);
-        }
+		video_ffff++;
+		printf("bad video counter: %d\n",video_ffff);
+
+		if(video_ffff>100){
+			printf("you should restart akipcserver\n");
+				Mutex_Unlock(&muxMutex);
+				exit(1);
+		}
 		printf("WARNING! Add Video Failure! ts: %lu IF: %d\n", timestamp, nIsIFrame);
 	}
 	else
@@ -694,7 +700,7 @@ int start_record( int cycrecord )
 	//mux audio
 	mux_input1.m_bCaptureAudio = 1;
 	mux_input1.m_eAudioType = MEDIALIB_AUDIO_AAC;
-	mux_input1.m_nSampleRate = 8000;
+	mux_input1.m_nSampleRate = SAMPLERATE;
 //	mux_input1.abitsrate = 0;
 //	mux_input1.pfile1 = AK_NULL;
 //	mux_input1.pfile2 = AK_NULL;
@@ -780,7 +786,7 @@ static T_pVOID thread_enc( T_pVOID user )
 {
 	T_U8* pbuf = (T_U8*)malloc(100 * 1024);
 	T_MEDIALIB_MUX_INFO mux_info;
-	
+
 	while (1)
 	{
 		if (g_mux_exit == 1)
@@ -788,7 +794,6 @@ static T_pVOID thread_enc( T_pVOID user )
 			printf("video mux thread exit \n");
 			break;
 		}
-
 		usleep(10000);
 		MediaLib_Mux_GetInfo(hMedia, &mux_info);
 
@@ -804,26 +809,28 @@ static T_pVOID thread_enc( T_pVOID user )
 
 			ChangFileName();
 
-            times--;
-            signed long long DiskSize = 0;
-            T_S32 bavail, bsize;
+			times--;
+			signed long long DiskSize = 0;
+			T_S32 bavail, bsize;
 
-            DiskFreeSize( "/mnt", &bavail, &bsize);
-            DiskSize = (T_S64)(T_U32)(bavail) * (T_S64)(T_U32)(bsize);
-            printf("avail= %ld, bsize = %ld, DiskSize = %lld\n", bavail, bsize, DiskSize);
+			DiskFreeSize( "/mnt", &bavail, &bsize);
+			DiskSize = (T_S64)(T_U32)(bavail) * (T_S64)(T_U32)(bsize);
+			printf("avail= %ld, bsize = %ld, DiskSize = %lld\n", bavail, bsize, DiskSize);
 
-            while(DiskSize < (T_S64)MIN_LIMIT_FREE_SPACE_SIZE) {
-                delete_oldest_file();
-                DiskFreeSize( "/mnt", &bavail, &bsize);
-                DiskSize = (T_S64)(T_U32)(bavail) * (T_S64)(T_U32)(bsize);
-                printf("avail= %ld, bsize = %ld, DiskSize = %lld\n", bavail, bsize, DiskSize);
-            }
+			while(DiskSize < (T_S64)MIN_LIMIT_FREE_SPACE_SIZE) {
+				delete_oldest_file();
+				DiskFreeSize( "/mnt", &bavail, &bsize);
+				DiskSize = (T_S64)(T_U32)(bavail) * (T_S64)(T_U32)(bsize);
+				printf("avail= %ld, bsize = %ld, DiskSize = %lld\n", bavail, bsize, DiskSize);
+			}
 
-            printf("[##]times=%d\n",times);
-            if (times <= 0)
-            {
-                printf("Record over \n");
-				
+			video_ffff=0;
+			audio_ffff=0;
+			printf("[##]times=%d\n",times);
+			if (times <= 0)
+			{
+				printf("Record over \n");
+
 				CloseRecordManager();
 				Recordflag = 0;
 				setled_record_stop(RecordIndex);
@@ -846,14 +853,13 @@ static T_pVOID thread_enc( T_pVOID user )
 					printf("Open file err \n");
 					break;
 				}
-				
+
 				MediaLib_Mux_Restart(hMedia, (T_S32)pfile1);
 			}
-			
 			stop_record_flag = 0;
 		}
 	}
-	
+
 	free(pbuf);
 	return NULL;
 }
